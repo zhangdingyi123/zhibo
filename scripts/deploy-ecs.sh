@@ -59,10 +59,11 @@ if ! grep -q '^FRONTEND_URL=' .env || grep -q 'localhost' .env; then
   fi
 fi
 
-set -a
-# shellcheck disable=SC1091
-source .env
-set +a
+# 勿 source .env（MYSQL_DSN 含括号会被 bash 误解析）；docker compose 会自动读取 .env
+read_env() {
+  local key="$1"
+  grep -m1 "^${key}=" .env 2>/dev/null | sed "s/^${key}=//" | tr -d '"' | tr -d "'"
+}
 
 echo "→ 构建并启动容器..."
 compose -f "$COMPOSE_FILE" up -d --build
@@ -82,7 +83,8 @@ else
   echo "⚠ 后端尚未就绪，查看日志: compose -f $COMPOSE_FILE logs -f backend"
 fi
 
-PUB="${FRONTEND_URL:-http://localhost:3000}"
+PUB="$(read_env FRONTEND_URL)"
+PUB="${PUB:-http://localhost:3000}"
 echo ""
 echo "部署完成。请在阿里云安全组放行 TCP 端口: 3000, 8081"
 echo ""

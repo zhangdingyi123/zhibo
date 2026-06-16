@@ -2,6 +2,8 @@ FROM node:22-alpine AS build
 
 WORKDIR /app
 COPY package.json package-lock.json ./
+# 国内 ECS npm 加速
+RUN npm config set registry https://registry.npmmirror.com
 RUN npm ci
 COPY . .
 RUN npm run build

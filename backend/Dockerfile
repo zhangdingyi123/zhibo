@@ -5,11 +5,8 @@ ENV GOPROXY=https://goproxy.cn,direct
 ENV GOSUMDB=sum.golang.google.cn
 
 WORKDIR /src
-COPY go.mod go.sum ./
-RUN go mod download
-
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o /server ./cmd/server
+RUN go mod tidy && CGO_ENABLED=0 GOOS=linux go build -o /server ./cmd/server
 
 FROM alpine:3.20
 

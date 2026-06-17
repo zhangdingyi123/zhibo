@@ -47,13 +47,17 @@ export function LiveRoomConsolePage() {
         listProducts({ page: 1, pageSize: 100, status: 'listed' }),
       ])
       setDetail(room)
+      setProducts(prodRes.items ?? [])
       if (room.roomId) {
-        const commentsRes = await listAdminRoomComments(room.roomId)
-        setDanmaku(commentsRes.items)
+        try {
+          const commentsRes = await listAdminRoomComments(room.roomId)
+          setDanmaku(commentsRes?.items ?? [])
+        } catch {
+          setDanmaku([])
+        }
       } else {
         setDanmaku([])
       }
-      setProducts(prodRes.items)
     } catch (err) {
       setError(err instanceof Error ? err.message : '加载失败')
     } finally {
@@ -136,9 +140,17 @@ export function LiveRoomConsolePage() {
     )
   }
 
-  if (!detail) return null
+  if (!detail) {
+    return (
+      <div className="admin-page">
+        <p className="muted">直播间数据为空，请返回列表重试</p>
+        <Link to="/admin/live-rooms">返回列表</Link>
+      </div>
+    )
+  }
 
-  const shelvedProductIds = new Set(detail.items.map((i) => i.productId))
+  const roomItems = detail.items ?? []
+  const shelvedProductIds = new Set(roomItems.map((i) => i.productId))
   const availableProducts = products.filter((p) => !shelvedProductIds.has(p.id))
 
   return (
@@ -164,7 +176,7 @@ export function LiveRoomConsolePage() {
             <button
               type="button"
               className="btn-primary"
-              disabled={busy || detail.items.length === 0}
+              disabled={busy || roomItems.length === 0}
               onClick={() => void runAction(() => startLiveRoom(liveRoomId))}
             >
               开始直播
@@ -209,7 +221,7 @@ export function LiveRoomConsolePage() {
           <h3>商品货架</h3>
           <p className="page-desc">同一直播间可上架多个商品，点击切换讲解</p>
           <ul className="live-console__item-list">
-            {detail.items.map((item) => (
+            {roomItems.map((item) => (
               <li
                 key={item.id}
                 className={`live-console__item${item.status === 'on_air' ? ' live-console__item--active' : ''}`}
@@ -223,7 +235,8 @@ export function LiveRoomConsolePage() {
                   <strong>{item.product?.name ?? `商品 #${item.productId}`}</strong>
                   <span className="muted">
                     {LIVE_ROOM_ITEM_STATUS_LABEL[item.status]}
-                    {item.session && ` · ${SESSION_STATUS_LABEL[item.session.status]}`}
+                    {item.session &&
+                      ` · ${SESSION_STATUS_LABEL[item.session.status] ?? item.session.status}`}
                   </span>
                 </div>
                 <div className="live-console__item-btns">

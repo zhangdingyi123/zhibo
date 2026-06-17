@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { createLiveRoom, listLiveRooms } from '../../api/admin'
 import type { LiveRoom } from '../../api/types'
 import { StatusBadge } from '../components/StatusBadge'
 import { LIVE_ROOM_STATUS_LABEL } from '../labels'
 
 export function LiveRoomListPage() {
+  const navigate = useNavigate()
   const [items, setItems] = useState<LiveRoom[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -34,7 +35,7 @@ export function LiveRoomListPage() {
     setCreating(true)
     try {
       const lr = await createLiveRoom({ title: title.trim() })
-      window.location.href = `/admin/live-rooms/${lr.id}`
+      navigate(`/admin/live-rooms/${lr.id}`)
     } catch (err) {
       window.alert(err instanceof Error ? err.message : '创建失败')
     } finally {

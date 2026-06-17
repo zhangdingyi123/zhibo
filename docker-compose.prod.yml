@@ -57,7 +57,7 @@ services:
       context: ./frontend
     container_name: zhibo-frontend
     ports:
-      - "3000:80"
+      - "8088:80"
     depends_on:
       - backend
     restart: unless-stopped

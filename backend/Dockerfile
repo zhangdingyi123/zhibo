@@ -1,6 +1,5 @@
-FROM golang:1.23-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
-ENV GOTOOLCHAIN=local
 # 国内 ECS 无法访问 proxy.golang.org，使用国内代理
 ENV GOPROXY=https://goproxy.cn,direct
 ENV GOSUMDB=sum.golang.google.cn

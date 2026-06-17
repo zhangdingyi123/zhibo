@@ -80,12 +80,6 @@ type LiveRoomDetail struct {
 	Comments []CommentView      `json:"comments,omitempty"`
 }
 
-type AnchorBrief struct {
-	ID       uint64 `json:"id"`
-	Nickname string `json:"nickname"`
-	Avatar   string `json:"avatar"`
-}
-
 type CommentView struct {
 	ID        uint64 `json:"id"`
 	UserID    uint64 `json:"userId"`
@@ -273,7 +267,7 @@ func (s *LiveRoomService) RemoveShelfItem(ctx context.Context, anchorID, liveRoo
 	if item.SessionID != nil {
 		sess, err := s.sessions.GetByID(ctx, *item.SessionID)
 		if err == nil && sess.Status == domain.SessionStatusPending && !sess.HasBids() {
-			_ = s.auction.Cancel(ctx, anchorID, *item.SessionID, "从直播间货架移除")
+			_, _ = s.auction.Cancel(ctx, anchorID, *item.SessionID, "从直播间货架移除")
 		}
 	}
 	return nil

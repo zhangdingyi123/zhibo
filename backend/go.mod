@@ -1,6 +1,6 @@
 module github.com/zhibo/backend
 
-go 1.24
+go 1.24.0
 
 require (
 	github.com/alicebob/miniredis/v2 v2.38.0
@@ -11,6 +11,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/joho/godotenv v1.5.1
 	github.com/redis/go-redis/v9 v9.19.0
+	golang.org/x/crypto v0.23.0
 	golang.org/x/sync v0.11.0
 )
 
@@ -40,7 +41,6 @@ require (
 	github.com/yuin/gopher-lua v1.1.1 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	golang.org/x/arch v0.8.0 // indirect
-	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.15.0 // indirect

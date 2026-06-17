@@ -3,6 +3,8 @@ package api
 import (
 	"database/sql"
 	"log"
+	"net/url"
+	"strings"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -19,7 +21,9 @@ func NewRouter(cfg config.Config, db *sql.DB) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{cfg.FrontendURL},
+		AllowOriginFunc: func(origin string) bool {
+			return corsOriginAllowed(origin, cfg.FrontendURL)
+		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "X-Mock-Open-Id", "X-User-Id", "X-Client-Id"},
 		AllowCredentials: true,
@@ -168,4 +172,23 @@ func NewRouter(cfg config.Config, db *sql.DB) *gin.Engine {
 	}
 
 	return r
+}
+
+// corsOriginAllowed 允许配置的前端地址，以及同主机不同端口（部署时常用 80/8088）。
+func corsOriginAllowed(origin, configured string) bool {
+	if origin == "" {
+		return true
+	}
+	if origin == configured {
+		return true
+	}
+	ou, err1 := url.Parse(origin)
+	cu, err2 := url.Parse(configured)
+	if err1 != nil || err2 != nil || ou.Scheme == "" || cu.Scheme == "" {
+		return false
+	}
+	if ou.Scheme != cu.Scheme {
+		return false
+	}
+	return strings.EqualFold(ou.Hostname(), cu.Hostname())
 }

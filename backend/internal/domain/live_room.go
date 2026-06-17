@@ -44,15 +44,6 @@ type LiveRoomItem struct {
 	UpdatedAt  time.Time          `json:"updatedAt"`
 }
 
-type RoomComment struct {
-	ID         uint64    `json:"id"`
-	LiveRoomID uint64    `json:"liveRoomId"`
-	UserID     uint64    `json:"userId"`
-	Content    string    `json:"content"`
-	IsHidden   bool      `json:"isHidden"`
-	CreatedAt  time.Time `json:"createdAt"`
-}
-
 func DefaultLiveRoomID(liveRoomID uint64) string {
 	return "room_live_" + formatUint(liveRoomID)
 }

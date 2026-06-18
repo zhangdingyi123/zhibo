@@ -17,7 +17,7 @@ export function LiveRoomListPage() {
     setError(null)
     try {
       const res = await listLiveRooms({ page: 1, pageSize: 50 })
-      setItems(res.items)
+      setItems(res?.items ?? [])
     } catch (err) {
       setError(err instanceof Error ? err.message : '加载失败')
     } finally {

@@ -1,4 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { AdminErrorBoundary } from '../admin/AdminErrorBoundary'
 import { ADMIN_ACCOUNTS, getAdminOpenId } from '../auth/adminAuth'
 import { clearSession, getUser } from '../auth/session'
 
@@ -53,7 +54,9 @@ export function AdminLayout() {
           <h1 className="admin-topbar__title">主播工作台</h1>
         </header>
         <div className="admin-content">
-          <Outlet />
+          <AdminErrorBoundary>
+            <Outlet />
+          </AdminErrorBoundary>
         </div>
       </div>
     </div>

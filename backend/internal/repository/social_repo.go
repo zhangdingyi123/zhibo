@@ -62,6 +62,9 @@ func (r *SocialRepo) ListComments(ctx context.Context, roomID string, includeHid
 		}
 		items = append(items, *c)
 	}
+	if items == nil {
+		items = []domain.RoomComment{}
+	}
 	return items, rows.Err()
 }
 

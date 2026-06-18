@@ -30,7 +30,8 @@ export function LiveRoomPage() {
     try {
       const data = await getLiveRoomByRoomId(roomId)
       setDetail(data)
-      const onAir = data.items.find((i) => i.status === 'on_air') ?? data.items[0]
+      const roomItems = data.items ?? []
+      const onAir = roomItems.find((i) => i.status === 'on_air') ?? roomItems[0]
       const pid = onAir?.productId
       setProductId(pid)
       if (data.anchor) {
@@ -43,7 +44,7 @@ export function LiveRoomPage() {
       ])
       setStats(statsRes)
       setSeedComments(
-        commentsRes.items.map((c) => ({
+        (commentsRes.items ?? []).map((c) => ({
           id: c.id,
           nickname: c.nickname,
           content: c.content,
@@ -85,7 +86,8 @@ export function LiveRoomPage() {
     )
   }
 
-  const stripItems: SessionSummary[] = detail.items
+  const roomItems = detail.items ?? []
+  const stripItems: SessionSummary[] = roomItems
     .filter((i) => i.sessionId != null)
     .map((i) => ({
       sessionId: i.sessionId!,
@@ -94,7 +96,7 @@ export function LiveRoomPage() {
       status: i.session?.status,
     }))
 
-  const onAir = detail.items.find((i) => i.status === 'on_air') ?? detail.items[0]
+  const onAir = roomItems.find((i) => i.status === 'on_air') ?? roomItems[0]
   const currentSessionId = detail.currentSessionId ?? onAir?.sessionId
 
   return (

@@ -49,8 +49,8 @@ export function AuctionListPage() {
     ])
       .then(([auctionRes, liveRes]) => {
         if (!cancelled) {
-          setItems(auctionRes.items)
-          setLiveRooms(liveRes.items)
+          setItems(auctionRes.items ?? [])
+          setLiveRooms(liveRes.items ?? [])
         }
       })
       .catch((e) => {

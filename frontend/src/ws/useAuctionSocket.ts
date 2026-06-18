@@ -65,7 +65,7 @@ export function useAuctionSocket(
       ...rest,
       onConnectionChange: setConnectionState,
       onSnapshot: setSnapshot,
-      onRank: setRank,
+      onRank: (items) => setRank(items ?? []),
       onRoomEvent: (ev) => {
         setLastEvent(ev)
         setLastSeq(socket.currentLastSeq)

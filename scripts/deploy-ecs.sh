@@ -50,12 +50,20 @@ if ! grep -q '^FRONTEND_URL=' .env || grep -q 'localhost' .env; then
     PUB_IP="$(curl -fsS --max-time 3 ifconfig.me 2>/dev/null || true)"
   fi
   if [ -n "$PUB_IP" ]; then
+    FRONTEND_URL="http://${PUB_IP}:8088"
+    FRONTEND_URLS="http://${PUB_IP},http://${PUB_IP}:8088,http://${PUB_IP}:80,http://127.0.0.1:8088"
     if grep -q '^FRONTEND_URL=' .env; then
-      sed -i "s|^FRONTEND_URL=.*|FRONTEND_URL=http://${PUB_IP}:3000|" .env
+      sed -i "s|^FRONTEND_URL=.*|FRONTEND_URL=${FRONTEND_URL}|" .env
     else
-      echo "FRONTEND_URL=http://${PUB_IP}:3000" >> .env
+      echo "FRONTEND_URL=${FRONTEND_URL}" >> .env
     fi
-    echo "已设置 FRONTEND_URL=http://${PUB_IP}:3000"
+    if grep -q '^FRONTEND_URLS=' .env; then
+      sed -i "s|^FRONTEND_URLS=.*|FRONTEND_URLS=${FRONTEND_URLS}|" .env
+    else
+      echo "FRONTEND_URLS=${FRONTEND_URLS}" >> .env
+    fi
+    echo "已设置 FRONTEND_URL=${FRONTEND_URL}"
+    echo "已设置 FRONTEND_URLS=${FRONTEND_URLS}"
   fi
 fi
 
@@ -84,15 +92,17 @@ else
 fi
 
 PUB="$(read_env FRONTEND_URL)"
-PUB="${PUB:-http://localhost:3000}"
+PUB="${PUB:-http://localhost:8088}"
 echo ""
-echo "部署完成。请在阿里云安全组放行 TCP 端口: 3000, 8081"
+echo "部署完成。请在阿里云安全组放行 TCP 端口: 80, 8088, 8081"
 echo ""
 echo "访问地址："
-echo "  前端:     ${PUB}"
-echo "  管理后台: ${PUB}/admin"
-echo "  演示直播: ${PUB}/app/live/room_live_1"
-echo "  API:      http://$(echo "$PUB" | sed 's|:3000||'):8081/api/v1/health"
+echo "  前端(推荐): ${PUB}/app"
+echo "  管理后台:     ${PUB}/admin"
+echo "  演示直播:     ${PUB}/app/live/room_live_1"
+echo "  API 健康:     http://127.0.0.1:8081/api/v1/health"
+echo ""
+echo "若 80 端口偶发「服务器内部错误」，请执行: bash scripts/fix-ecs-gateway.sh"
 echo ""
 echo "常用命令："
 echo "  compose -f $COMPOSE_FILE ps"

@@ -39,7 +39,7 @@ export function AuctionListPage() {
     let cancelled = false
     setLoading(true)
     setError(null)
-    Promise.all([
+    Promise.allSettled([
       listAuctions({
         status: status === '' ? undefined : status,
         page: 1,
@@ -47,14 +47,23 @@ export function AuctionListPage() {
       }),
       listLiveRooms({ page: 1, pageSize: 10 }),
     ])
-      .then(([auctionRes, liveRes]) => {
-        if (!cancelled) {
-          setItems(auctionRes.items ?? [])
-          setLiveRooms(liveRes.items ?? [])
+      .then(([auctionResult, liveResult]) => {
+        if (cancelled) return
+        if (auctionResult.status === 'fulfilled') {
+          setItems(auctionResult.value.items ?? [])
         }
-      })
-      .catch((e) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : '加载失败')
+        if (liveResult.status === 'fulfilled') {
+          setLiveRooms(liveResult.value.items ?? [])
+        }
+        const failed =
+          auctionResult.status === 'rejected'
+            ? auctionResult.reason
+            : liveResult.status === 'rejected'
+              ? liveResult.reason
+              : null
+        if (failed) {
+          setError(failed instanceof Error ? failed.message : '加载失败')
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false)

@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"strconv"
+	"strings"
 )
 
 type Config struct {
@@ -26,6 +27,30 @@ func Load() Config {
 		FrontendURL: getEnv("FRONTEND_URL", "http://localhost:5173"),
 		JWTSecret:   getEnv("JWT_SECRET", "zhibo-dev-jwt-secret-change-in-prod"),
 	}
+}
+
+// AllowedOrigins 供 CORS 使用，支持 FRONTEND_URL + FRONTEND_URLS（逗号分隔）
+func (c Config) AllowedOrigins() []string {
+	seen := make(map[string]struct{})
+	var out []string
+	add := func(o string) {
+		o = strings.TrimSpace(o)
+		if o == "" {
+			return
+		}
+		if _, ok := seen[o]; ok {
+			return
+		}
+		seen[o] = struct{}{}
+		out = append(out, o)
+	}
+	add(c.FrontendURL)
+	if extra := os.Getenv("FRONTEND_URLS"); extra != "" {
+		for _, o := range strings.Split(extra, ",") {
+			add(o)
+		}
+	}
+	return out
 }
 
 func getEnv(key, fallback string) string {
